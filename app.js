@@ -1,5 +1,6 @@
 (() => {
   const CAT = [
+    { name: '매우좋음', max: 15, color: '#42A5F5' },
     { name: '좋음', max: 28, color: '#1E88E5' },
     { name: '보통', max: 80, color: '#43A047' },
     { name: '나쁨', max: 146, color: '#F57C00' },
@@ -12,20 +13,19 @@
   const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}`;
   const KAKAO_ADDRESS_API = `https://dapi.kakao.com/v2/local/search/address.json`;
   const KAKAO_COORD_API = `https://dapi.kakao.com/v2/local/geo/coord2address.json`;
-  const KAKAO_TM_API = `https://dapi.kakao.com/v2/local/geo/transcoord.json`; // TM 좌표 변환용 API
+  const KAKAO_TM_API = `https://dapi.kakao.com/v2/local/geo/transcoord.json`;
 
   function getStatus(v) {
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
 
-  // 방어 코드가 추가된 drawGauge 함수
+  // **애니메이션 적용**: CSS 변수를 업데이트하도록 수정된 함수
   function drawGauge(pmType, value, station) {
     const wheelEl = document.getElementById(`gauge${pmType}`);
     const statusTextEl = document.getElementById(`statusText${pmType}`);
     const valueTextEl = document.getElementById(`valueText${pmType}`);
     const stationEl = document.getElementById(`station${pmType}`);
-    
-    // 요소가 존재하는지 확인 후 업데이트 (TypeError 방지)
+
     if (!wheelEl || !statusTextEl || !valueTextEl || !stationEl) {
       console.error(`${pmType} 관련 요소를 찾을 수 없습니다.`);
       return;
@@ -34,14 +34,19 @@
     const status = getStatus(value);
     const ratio = Math.min(value / 150, 1);
     const deg = 360 * ratio;
+
+    // JavaScript는 목표 값만 지정하고, 애니메이션은 CSS가 담당
+    wheelEl.style.setProperty('--gauge-color', status.color);
     wheelEl.style.setProperty('--angle', `${deg}deg`);
 
+    // 텍스트는 바로 업데이트
     statusTextEl.textContent = status.name;
     statusTextEl.style.color = status.color;
     valueTextEl.textContent = `${value} µg/m³`;
     stationEl.textContent = `측정소: ${station}`;
   }
 
+  // (이하 다른 함수들은 이전과 동일)
   async function fetchAirData(station) {
     try {
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
@@ -60,10 +65,8 @@
     }
   }
 
-  // **핵심 오류 수정**: TM 좌표를 정상적으로 변환하고 사용하도록 수정된 함수
   async function getNearestStation(lat, lon) {
     try {
-      // 1. 카카오 API로 WGS84(위경도) -> TM 좌표로 변환
       const tmUrl = `${KAKAO_TM_API}?x=${lon}&y=${lat}&input_coord=WGS84&output_coord=TM`;
       const tmRes = await fetch(tmUrl, {
           headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
@@ -73,10 +76,9 @@
       if (!tmData.documents || tmData.documents.length === 0) {
         throw new Error('카카오 TM 좌표 변환에 실패했습니다.');
       }
-      const tmX = tmData.documents[0].x; // 변환된 TM X좌표
-      const tmY = tmData.documents[0].y; // 변환된 TM Y좌표
+      const tmX = tmData.documents[0].x;
+      const tmY = tmData.documents[0].y;
 
-      // 2. 변환된 TM 좌표로 AirKorea API에 가까운 측정소 요청
       const nearbyUrl = NEARBY_API.replace('{tmX}', tmX).replace('{tmY}', tmY);
       const res = await fetch(nearbyUrl);
       if (!res.ok) throw new Error(`AirKorea 측정소 API HTTP ${res.status}`);
@@ -88,7 +90,7 @@
 
     } catch (e) {
       console.error('측정소 조회 과정 오류:', e);
-      return '종로구'; // 오류 발생 시 기본 측정소
+      return '종로구';
     }
   }
 
@@ -120,8 +122,8 @@
       documents.slice(0, 5).forEach(d => {
         const li = document.createElement('li');
         li.textContent = d.address_name;
-        li.dataset.lat = d.y; // 데이터 속성에 좌표 저장
-        li.dataset.lon = d.x; // 데이터 속성에 좌표 저장
+        li.dataset.lat = d.y;
+        li.dataset.lon = d.x;
         li.onclick = () => {
           input.value = d.address_name;
           sug.innerHTML = '';
@@ -137,10 +139,9 @@
   document.getElementById('searchBtn').onclick = () => {
     const firstSuggestion = sug.querySelector('li');
     if (firstSuggestion) {
-      // 저장해둔 좌표를 이용해 바로 업데이트
       updateAll(firstSuggestion.dataset.lat, firstSuggestion.dataset.lon);
-      input.value = firstSuggestion.textContent; // 입력창 텍스트도 업데이트
-      sug.innerHTML = ''; // 추천 목록 닫기
+      input.value = firstSuggestion.textContent;
+      sug.innerHTML = '';
     } else {
       alert('검색 결과가 없습니다. 다른 키워드로 검색해 보세요.');
     }
@@ -156,7 +157,7 @@
     () => {
       console.error('위치 수집에 실패했습니다. 기본 위치로 조회합니다.');
       alert('위치 정보를 가져올 수 없습니다. 기본 위치(서울 종로구)로 조회합니다.');
-      updateAll(37.5729, 126.9794); // 서울 종로구 좌표
+      updateAll(37.5729, 126.9794);
     }
   );
 

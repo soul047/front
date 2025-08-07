@@ -1,6 +1,22 @@
 /* 기본 & 전체 레이아웃 스타일 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
 
+/* --- 애니메이션 추가 --- */
+/* 브라우저에게 --angle과 --gauge-color 속성을 애니메이션 할 수 있다고 알려줍니다. */
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --gauge-color {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #eee;
+}
+/* --- 애니메이션 추가 끝 --- */
+
+
 :root {
   --background-color: #f4f6f8;
   --card-color: #ffffff;
@@ -9,10 +25,6 @@
   --border-color: #e0e0e0;
   --primary-color: #007bff;
   --shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  --color-good: #1E88E5;
-  --color-normal: #43A047;
-  --color-bad: #F57C00;
-  --color-very-bad: #D32F2F;
 }
 
 body {
@@ -97,9 +109,11 @@ header h1 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: conic-gradient(from 90deg, var(--color-good) 0%, var(--color-normal) 35%, var(--color-bad) 65%, var(--color-very-bad) 100%);
-  mask-image: conic-gradient(black var(--angle, 0deg), transparent var(--angle, 0deg));
-  -webkit-mask-image: conic-gradient(black var(--angle, 0deg), transparent var(--angle, 0deg));
+  /* --- 애니메이션 추가 --- */
+  /* JS가 변경할 --gauge-color와 --angle 변수를 사용해 배경을 그립니다. */
+  background: conic-gradient(var(--gauge-color) var(--angle), #eee var(--angle));
+  /* --angle과 --gauge-color 값이 변할 때 애니메이션 효과를 적용합니다. */
+  transition: --angle 1s ease-out, --gauge-color 0.5s ease;
 }
 
 .gauge-hole {
@@ -120,6 +134,7 @@ header h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -70%);
+  transition: color 0.5s ease; /* 글씨 색상도 부드럽게 변경 */
 }
 
 .gauge-value {
@@ -138,6 +153,7 @@ header h1 {
   margin-top: 1rem;
 }
 
+/* 이하 스타일은 변경 없음 */
 #search { margin: 2rem 0; position: relative; width: 100%; max-width: 500px; display: flex; }
 #place { flex-grow: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px 0 0 8px; font-size: 1rem; }
 #place:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
