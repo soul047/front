@@ -176,6 +176,6 @@ footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1p
   #gauges { flex-direction: column; gap: 1.5rem; }
   .gauge-wrapper { width: 180px; height: 180px; }
   .gauge-hole { width: 120px; height: 120px; }
-  .gauge-status { font-size: 2rem; }
-  .gauge-value { font-size: 1.1rem; }
+  .gauge-status { font-size: 1.6rem; }
+  .gauge-value { font-size: 1rem; }
 }

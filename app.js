@@ -1,6 +1,5 @@
 (() => {
   const CAT = [
-    { name: '매우좋음', max: 15, color: '#42A5F5' },
     { name: '좋음', max: 28, color: '#1E88E5' },
     { name: '보통', max: 80, color: '#43A047' },
     { name: '나쁨', max: 146, color: '#F57C00' },
@@ -19,7 +18,6 @@
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
 
-  // **애니메이션 적용**: CSS 변수를 업데이트하도록 수정된 함수
   function drawGauge(pmType, value, station) {
     const wheelEl = document.getElementById(`gauge${pmType}`);
     const statusTextEl = document.getElementById(`statusText${pmType}`);
@@ -35,18 +33,15 @@
     const ratio = Math.min(value / 150, 1);
     const deg = 360 * ratio;
 
-    // JavaScript는 목표 값만 지정하고, 애니메이션은 CSS가 담당
     wheelEl.style.setProperty('--gauge-color', status.color);
     wheelEl.style.setProperty('--angle', `${deg}deg`);
 
-    // 텍스트는 바로 업데이트
     statusTextEl.textContent = status.name;
     statusTextEl.style.color = status.color;
     valueTextEl.textContent = `${value} µg/m³`;
     stationEl.textContent = `측정소: ${station}`;
   }
 
-  // (이하 다른 함수들은 이전과 동일)
   async function fetchAirData(station) {
     try {
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
@@ -105,47 +100,80 @@
 
   const input = document.getElementById('place');
   const sug = document.getElementById('suggestions');
-  
-  input.addEventListener('input', async () => {
-    if (!input.value) {
-      sug.innerHTML = '';
+  let debounceTimer;
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      const query = input.value;
+      if (!query) {
+        sug.innerHTML = '';
+        return;
+      }
+      try {
+        const q = encodeURIComponent(query);
+        const res = await fetch(`${KAKAO_ADDRESS_API}?query=${q}`, {
+          headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
+        });
+        if (!res.ok) throw new Error(`Kakao 검색 API HTTP ${res.status}`);
+        const { documents } = await res.json();
+        sug.innerHTML = '';
+        documents.slice(0, 5).forEach(d => {
+          const li = document.createElement('li');
+          li.textContent = d.address_name;
+          li.dataset.lat = d.y;
+          li.dataset.lon = d.x;
+          li.onclick = () => {
+            input.value = d.address_name;
+            sug.innerHTML = '';
+            updateAll(d.y, d.x);
+          };
+          sug.appendChild(li);
+        });
+      } catch (e) {
+        console.error('Kakao 검색 오류:', e);
+      }
+    }, 300); 
+  });
+
+  // --- 검색 버튼 로직 수정 ---
+  // 이제 검색 버튼은 추천 목록이 아닌, 입력창의 텍스트를 기준으로 동작합니다.
+  document.getElementById('searchBtn').onclick = async () => {
+    const query = input.value.trim(); // 입력창의 텍스트를 가져옴
+
+    if (!query) {
+      alert('검색할 지역을 입력해 주세요.');
       return;
     }
+
+    sug.innerHTML = ''; // 열려 있는 추천 목록을 닫음
+
     try {
-      const q = encodeURIComponent(input.value);
+      // 입력된 텍스트로 카카오에 직접 검색 요청
+      const q = encodeURIComponent(query);
       const res = await fetch(`${KAKAO_ADDRESS_API}?query=${q}`, {
         headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
       });
-      if (!res.ok) throw new Error(`Kakao 검색 API HTTP ${res.status}`);
-      const { documents } = await res.json();
-      sug.innerHTML = '';
-      documents.slice(0, 5).forEach(d => {
-        const li = document.createElement('li');
-        li.textContent = d.address_name;
-        li.dataset.lat = d.y;
-        li.dataset.lon = d.x;
-        li.onclick = () => {
-          input.value = d.address_name;
-          sug.innerHTML = '';
-          updateAll(d.y, d.x);
-        };
-        sug.appendChild(li);
-      });
-    } catch (e) {
-      console.error('Kakao 검색 오류:', e);
-    }
-  });
 
-  document.getElementById('searchBtn').onclick = () => {
-    const firstSuggestion = sug.querySelector('li');
-    if (firstSuggestion) {
-      updateAll(firstSuggestion.dataset.lat, firstSuggestion.dataset.lon);
-      input.value = firstSuggestion.textContent;
-      sug.innerHTML = '';
-    } else {
-      alert('검색 결과가 없습니다. 다른 키워드로 검색해 보세요.');
+      if (!res.ok) throw new Error(`Kakao 검색 API HTTP ${res.status}`);
+      
+      const { documents } = await res.json();
+
+      if (documents.length > 0) {
+        const firstResult = documents[0];
+        // 검색 결과의 첫 번째 항목 좌표로 미세먼지 정보 업데이트
+        updateAll(firstResult.y, firstResult.x);
+        // 입력창의 값도 가장 정확한 주소로 업데이트
+        input.value = firstResult.address_name;
+      } else {
+        alert(`'${query}'에 대한 검색 결과가 없습니다.`);
+      }
+    } catch (e) {
+      console.error('검색 버튼 클릭 오류:', e);
+      alert('검색 중 오류가 발생했습니다.');
     }
   };
+  // --- 검색 버튼 로직 수정 끝 ---
 
   document.getElementById('adminBtn').onclick = () => {
     const pw = prompt('비밀번호');
@@ -177,7 +205,7 @@
       if (!res.ok) throw new Error(`Kakao 지역 변환 API HTTP ${res.status}`);
       const { documents } = await res.json();
       regionEl.textContent = documents[0]?.address?.address_name || '--';
-    } catch (e) {
+        } catch (e) {
       console.error('지역 업데이트 오류:', e);
       regionEl.textContent = '조회 실패';
     }
