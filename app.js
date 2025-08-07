@@ -18,13 +18,6 @@
   const errorEl = document.getElementById('error-message');
   const gaugesEl = document.getElementById('gauges');
 
-  // --- 새로운 이름 정제 함수 ---
-  function cleanStationName(name) {
-    if (!name) return null;
-    // 띄어쓰기, 숫자, 그리고 마지막의 행정단위(시,군,구,읍,면,동,리)를 제거
-    return name.replace(/\s/g, '').replace(/\d+/g, '').replace(/(시|군|구|읍|면|동|리)$/, '');
-  }
-
   function getStatus(v) {
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
@@ -65,7 +58,7 @@
       return { 
         pm10: parseFloat(item.pm10Value) || 0, 
         pm25: parseFloat(item.pm25Value) || 0, 
-        station: station // API는 정제된 이름으로 호출하지만, 화면엔 원래 이름을 표시할 수 있음. 여기선 검색한 이름 그대로 표시.
+        station: station
       };
     } catch (e) {
       console.error(`'${station}' 측정소 조회 중 오류:`, e);
@@ -85,6 +78,7 @@
       if (!regionData) throw new Error('주소 정보를 찾을 수 없음');
       
       document.getElementById('region').textContent = regionData.address_name;
+
     } catch (e) {
       console.error("주소 정보 조회 실패:", e);
       errorEl.textContent = "주소 정보를 가져오는 데 실패했습니다.";
@@ -92,25 +86,26 @@
       return;
     }
 
-    // --- 이름 정제 로직을 적용하여 측정소 탐색 ---
-    const dongName = regionData.region_3depth_name;
-    const guName = regionData.region_2depth_name;
+    // --- 새로운 역순 탐색 로직 ---
+    const addressParts = regionData.address_name.split(' ');
+    let airData = null;
 
-    const cleanedDongName = cleanStationName(dongName);
-    const cleanedGuName = cleanStationName(guName);
-    
-    let airData = await fetchAirData(cleanedDongName); // 1순위: 정제된 '동' 이름으로 시도
-    
-    // 정제된 '동'과 '구' 이름이 다를 경우에만 '구' 이름으로 추가 시도
-    if (!airData && cleanedGuName && cleanedGuName !== cleanedDongName) {
-      airData = await fetchAirData(cleanedGuName); // 2순위: 정제된 '구' 이름으로 시도
+    for (let i = addressParts.length - 1; i >= 0; i--) {
+      // 행정단위(시,군,구,동...)와 숫자를 제거하여 핵심 이름 추출
+      const cleanName = addressParts[i].replace(/\d+/g, '').replace(/(시|군|구|읍|면|동|리)$/, '');
+      if (cleanName) {
+        airData = await fetchAirData(cleanName);
+        if (airData) {
+          break; // 데이터를 찾았으면 탐색 중지
+        }
+      }
     }
     
     if (airData) {
       drawGauge('PM10', airData.pm10, airData.station);
       drawGauge('PM25', airData.pm25, airData.station);
     } else {
-      errorEl.textContent = `'${guName}' 근처의 측정소를 자동으로 찾지 못했습니다. 가까운 도시나 다른 동 이름으로 직접 검색해 보세요.`;
+      errorEl.textContent = `'${regionData.region_2depth_name}' 근처의 측정소를 자동으로 찾지 못했습니다. 가까운 도시나 다른 동 이름으로 직접 검색해 보세요.`;
       errorEl.style.display = 'block';
       inputEl.focus();
       drawGauge('PM10', 0, '정보 없음');
