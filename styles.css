@@ -159,7 +159,8 @@ header h1 {
   width: 100%;
   max-width: 800px;
   padding: 1rem;
-  margin: -1rem 0 1.5rem 0;
+  /* 위쪽 간격을 없애고 아래쪽 간격만 갖도록 수정 */
+  margin: 0 0 1.5rem 0; 
   background-color: #FFF3CD;
   color: #856404;
   border: 1px solid #FFEEBA;
@@ -168,7 +169,15 @@ header h1 {
   box-sizing: border-box;
 }
 
-#search { margin: 0; position: relative; width: 100%; max-width: 500px; display: flex; }
+#search { 
+  position: relative; 
+  width: 100%; 
+  max-width: 500px; 
+  display: flex;
+  /* 항상 일정한 위쪽 간격을 갖도록 margin-top 추가 */
+  margin: 2rem 0;
+}
+
 #place { flex-grow: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px 0 0 8px; font-size: 1rem; }
 #place:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
 #searchBtn { padding: 12px 20px; border: none; background-color: var(--primary-color); color: white; font-size: 1rem; cursor: pointer; border-radius: 0 8px 8px 0; transition: background-color 0.2s; }
