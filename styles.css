@@ -183,3 +183,65 @@ footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1p
   .gauge-status { font-size: 1.6rem; }
   .gauge-value { font-size: 1rem; }
 }
+
+/* =================================== */
+/* ==== 관리자 페이지 스타일 (추가) ==== */
+/* =================================== */
+
+#dashboard {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  /* 메인 페이지의 .criteria-card 스타일을 재사용 */
+  background: var(--card-color);
+  padding: 1.5rem 2rem;
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+  flex: 1;
+  text-align: center;
+}
+
+.stat-card h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: var(--light-text-color);
+}
+
+.count-text {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.back-btn {
+  display: inline-block;
+  padding: 12px 25px;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 2rem;
+}
+
+.back-btn:hover {
+  background-color: #0056b3;
+}
+
+/* 관리자 페이지 반응형 */
+@media (max-width: 768px) {
+  #dashboard {
+    flex-direction: column;
+  }
+}
