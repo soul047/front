@@ -1,3 +1,11 @@
+/* 웹폰트 불러오기 (서울알림체) */
+@font-face {
+    font-family: 'SeoulNamsan-Alert';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2205@1.0/SeoulNamsan-Alert.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* 기본 & 전체 레이아웃 스타일 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
 
@@ -38,8 +46,9 @@ header {
 }
 
 header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 변경 */
+  font-weight: 800; /* 굵기 적용 */
+  font-size: 2.8rem;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
 }
@@ -78,19 +87,21 @@ header h1 {
 
 .gauge-container h2 {
   margin-top: 0;
+  font-family: 'Noto Sans KR', sans-serif; /* 제목은 기본 폰트로 유지 */
+  font-weight: 700;
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
 
-/* 도넛 휠 게이지 (크기 및 그라데이션 적용) */
+/* 도넛 휠 게이지 */
 .gauge-wrapper {
   position: relative;
-  width: 220px; /* 크기 증가 */
-  height: 220px; /* 크기 증가 */
+  width: 220px;
+  height: 220px;
   margin: 0 auto;
 }
 
-.gauge-wheel, .gauge-hole, .gauge-status, .gauge-value {
+.gauge-wheel, .gauge-hole {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -101,7 +112,6 @@ header h1 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  /* 모든 색상을 포함하는 그라데이션 배경 */
   background: conic-gradient(
     from 90deg,
     var(--color-good) 0%,
@@ -109,14 +119,13 @@ header h1 {
     var(--color-bad) 65%,
     var(--color-very-bad) 100%
   );
-  /* 마스크를 이용해 값만큼만 보이게 함 */
   mask-image: conic-gradient(black var(--angle, 0deg), transparent var(--angle, 0deg));
   -webkit-mask-image: conic-gradient(black var(--angle, 0deg), transparent var(--angle, 0deg));
 }
 
 .gauge-hole {
-  width: 160px; /* 크기 증가 */
-  height: 160px; /* 크기 증가 */
+  width: 160px;
+  height: 160px;
   background: var(--card-color);
   border-radius: 50%;
   display: flex;
@@ -126,15 +135,24 @@ header h1 {
 }
 
 .gauge-status {
-  font-size: 2.2rem;
-  font-weight: 700;
-  transform: translate(-50%, -70%); /* 수직 위치 미세 조정 */
+  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 변경 */
+  font-weight: 800; /* 굵기 적용 */
+  font-size: 2.5rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -70%);
 }
 
 .gauge-value {
-  font-size: 1.1rem;
+  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 변경 */
+  font-weight: 700; /* 굵기 적용 */
+  font-size: 1.3rem;
   color: var(--light-text-color);
-  transform: translate(-50%, 80%); /* 수직 위치 미세 조정 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 80%);
 }
 
 .station-info {
@@ -255,7 +273,7 @@ footer {
   }
   
   header h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
   
   #gauges {
@@ -274,11 +292,11 @@ footer {
   }
   
   .gauge-status {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
   
   .gauge-value {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .info-row {
