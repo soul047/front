@@ -9,16 +9,11 @@
   const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D';
   const KAKAO_KEY = window.env?.KAKAO_KEY || 'be29697319e13590895593f5f5508348';
   
+  // 성공적으로 동작하는 API만 남겨둡니다.
   const AIRKOREA_API = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${AIRKOREA_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName={station}&dataTerm=DAILY&ver=1.3`;
-  
-  // --- 최종 API 호출 수정 ---
-  // numOfRows와 pageNo 파라미터를 추가합니다.
-  const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}&numOfRows=1&pageNo=1&ver=1.0`;
-  
   const KAKAO_ADDRESS_API = `https://dapi.kakao.com/v2/local/search/address.json`;
   const KAKAO_COORD_API = `https://dapi.kakao.com/v2/local/geo/coord2address.json`;
-  const KAKAO_TM_API = `https://dapi.kakao.com/v2/local/geo/transcoord.json`;
-
+  
   function getStatus(v) {
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
@@ -47,65 +42,83 @@
     stationEl.textContent = `측정소: ${station}`;
   }
 
+  // fetchAirData 함수를 약간 수정하여, 데이터가 실제로 있는지 여부를 반환하도록 합니다.
   async function fetchAirData(station) {
     try {
+      if (!station) return null; // 검색할 측정소 이름이 없으면 null 반환
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
       const res = await fetch(url);
       if (!res.ok) throw new Error(`AirKorea 데이터 API HTTP ${res.status}`);
       const data = await res.json();
       const item = data.response.body.items[0];
+      
+      // 데이터가 없거나, pm10Value가 유효하지 않으면 null 반환
       if (!item || !item.pm10Value) {
-        console.warn(`${station} 측정소의 데이터가 없습니다. 기본값을 사용합니다.`);
-        return { pm10: 0, pm25: 0, station };
+        console.warn(`'${station}' 측정소 데이터를 찾을 수 없습니다.`);
+        return null;
       }
-      return { pm10: parseFloat(item.pm10Value) || 0, pm25: parseFloat(item.pm25Value) || 0, station };
+      return { 
+        pm10: parseFloat(item.pm10Value) || 0, 
+        pm25: parseFloat(item.pm25Value) || 0, 
+        station: station // 실제 사용된 측정소 이름
+      };
     } catch (e) {
-      console.error('AirKorea 데이터 API 오류:', e);
-      return { pm10: 0, pm25: 0, station };
+      console.error(`'${station}' 측정소 조회 중 오류:`, e);
+      return null;
     }
   }
 
-  async function getNearestStation(lat, lon) {
+  // --- 여기가 완전히 새로워진 핵심 로직입니다 ---
+  async function updateAirQuality(lat, lon) {
+    // 1. 좌표로 행정구역 정보 가져오기
+    let regionData;
     try {
-      const tmUrl = `${KAKAO_TM_API}?x=${lon}&y=${lat}&input_coord=WGS84&output_coord=TM`;
-      const tmRes = await fetch(tmUrl, {
-          headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
+      const res = await fetch(`${KAKAO_COORD_API}?x=${lon}&y=${lat}`, {
+        headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
       });
-      if (!tmRes.ok) throw new Error(`Kakao TM 변환 API HTTP ${tmRes.status}`);
-      const tmData = await tmRes.json();
-      if (!tmData.documents || tmData.documents.length === 0) {
-        throw new Error('카카오 TM 좌표 변환에 실패했습니다.');
-      }
-      const tmX = tmData.documents[0].x;
-      const tmY = tmData.documents[0].y;
-
-      const nearbyUrl = NEARBY_API.replace('{tmX}', tmX).replace('{tmY}', tmY);
-      const res = await fetch(nearbyUrl);
-      if (!res.ok) throw new Error(`AirKorea 측정소 API HTTP ${res.status}`);
+      if (!res.ok) throw new Error('카카오 지역 변환 실패');
+      const data = await res.json();
+      regionData = data.documents[0]?.address;
+      if (!regionData) throw new Error('주소 정보를 찾을 수 없음');
       
-      const text = await res.text(); // 응답을 텍스트로 먼저 확인
-      const data = JSON.parse(text); // 텍스트를 JSON으로 파싱
-
-      const item = data.response.body.items[0];
-      if (!item) throw new Error('주변 측정소 정보를 찾을 수 없습니다.');
-      
-      return item.stationName;
+      // 화면 상단 지역 이름 업데이트
+      document.getElementById('region').textContent = regionData.address_name;
 
     } catch (e) {
-      console.error('측정소 조회 과정 오류:', e);
-      return '종로구';
+      console.error("주소 정보 조회 실패:", e);
+      alert("주소 정보를 가져오는 데 실패했습니다.");
+      return;
+    }
+
+    // 2. 행정구역 이름으로 측정소 데이터 조회 (동 -> 구 -> 시 순으로 시도)
+    const dongName = regionData.region_3depth_name; // 동 이름 (예: 가평읍)
+    const guName = regionData.region_2depth_name; // 군/구 이름 (예: 가평군)
+    
+    let airData = await fetchAirData(dongName); // 1순위: 동 이름으로 시도
+    
+    if (!airData) {
+      airData = await fetchAirData(guName); // 2순위: 군/구 이름으로 시도
+    }
+
+    // 3. 최종적으로 데이터를 화면에 그리기
+    if (airData) {
+      drawGauge('PM10', airData.pm10, airData.station);
+      drawGauge('PM25', airData.pm25, airData.station);
+    } else {
+      alert(`'${guName}' 지역의 측정소 데이터를 찾을 수 없습니다. 다른 지역을 검색해 주세요.`);
+      // 데이터가 없을 경우 게이지 초기화
+      drawGauge('PM10', 0, '정보 없음');
+      drawGauge('PM25', 0, '정보 없음');
     }
   }
 
+  // updateAll 함수를 새 로직에 맞게 간소화
   async function updateAll(lat, lon) {
-    const station = await getNearestStation(lat, lon);
-    const { pm10, pm25 } = await fetchAirData(station);
-    drawGauge('PM10', pm10, station);
-    drawGauge('PM25', pm25, station);
-    updateRegion(lat, lon);
+    updateAirQuality(lat, lon);
     updateDateTime();
   }
-
+  
+  // (이하 검색, 현재위치 등 나머지 코드는 대부분 동일)
   const input = document.getElementById('place');
   const sug = document.getElementById('suggestions');
   let debounceTimer;
@@ -196,20 +209,5 @@
     if(timeEl) timeEl.textContent = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
   }
   setInterval(updateDateTime, 60000);
-
-  async function updateRegion(lat, lon) {
-    const regionEl = document.getElementById('region');
-    if (!regionEl) return;
-    try {
-      const res = await fetch(`${KAKAO_COORD_API}?x=${lon}&y=${lat}`, {
-        headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
-      });
-      if (!res.ok) throw new Error(`Kakao 지역 변환 API HTTP ${res.status}`);
-      const { documents } = await res.json();
-      regionEl.textContent = documents[0]?.address?.address_name || '--';
-    } catch (e) {
-      console.error('지역 업데이트 오류:', e);
-      regionEl.textContent = '조회 실패';
-    }
-  }
+  
 })();
