@@ -21,24 +21,30 @@
   <section id="gauges">
     <div class="gauge-container">
       <h2>미세먼지</h2>
-      <div class="gauge-wheel" id="gaugePM10"></div>
-      <div class="gauge-hole"></div>
-      <div class="gauge-text" id="gaugePM10Text"></div>
-      <p id="statusPM10">--</p>
+      <div class="gauge-wrapper">
+        <div class="gauge-wheel" id="gaugePM10"></div>
+        <div class="gauge-hole">
+          <div class="gauge-status" id="statusTextPM10">--</div>
+          <div class="gauge-value" id="valueTextPM10">-- µg/m³</div>
+        </div>
+      </div>
       <p id="stationPM10" class="station-info">--</p>
     </div>
     <div class="gauge-container">
       <h2>초미세먼지</h2>
-      <div class="gauge-wheel" id="gaugePM25"></div>
-      <div class="gauge-hole"></div>
-      <div class="gauge-text" id="gaugePM25Text"></div>
-      <p id="statusPM25">--</p>
+      <div class="gauge-wrapper">
+        <div class="gauge-wheel" id="gaugePM25"></div>
+        <div class="gauge-hole">
+          <div class="gauge-status" id="statusTextPM25">--</div>
+          <div class="gauge-value" id="valueTextPM25">-- µg/m³</div>
+        </div>
+      </div>
       <p id="stationPM25" class="station-info">--</p>
     </div>
   </section>
 
   <div class="info-row">
-    <p><strong>지역:</strong> <span id="region">--</span></p>
+    <p><strong>접속지역:</strong> <span id="region">--</span></p>
     <p><strong>측정 기준:</strong> <span id="time">--</span></p>
   </div>
 
