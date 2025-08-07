@@ -6,7 +6,7 @@
     { name: '매우나쁨', max: 1000, color: '#D32F2F' }
   ];
 
-const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D';
+  const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D';
   const KAKAO_KEY = window.env?.KAKAO_KEY || 'be29697319e13590895593f5f5508348';
   const AIRKOREA_API = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${AIRKOREA_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName={station}&dataTerm=DAILY&ver=1.3`;
   const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}`;
@@ -17,7 +17,7 @@ const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvj
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
 
-const createGauge = (canvasId, value) => {
+  const createGauge = (canvasId, value) => {
     return new Chart(document.getElementById(canvasId), {
       type: 'doughnut',
       data: {
@@ -41,19 +41,18 @@ const createGauge = (canvasId, value) => {
       }
     });
   };
+
   let gaugePM10Chart, gaugePM25Chart;
 
-function drawGauge(pmType, value, station) {
+  function drawGauge(pmType, value, station) {
     const canvasId = pmType === 'PM10' ? 'gaugePM10' : 'gaugePM25';
     const statusEl = document.getElementById(`status${pmType}`);
     const stationEl = document.getElementById(`station${pmType}`);
     const status = getStatus(value);
 
-// 기존 차트 제거
     if (pmType === 'PM10' && gaugePM10Chart) gaugePM10Chart.destroy();
     if (pmType === 'PM25' && gaugePM25Chart) gaugePM25Chart.destroy();
 
-    // 새 차트 생성
     const chart = createGauge(canvasId, value);
     if (pmType === 'PM10') gaugePM10Chart = chart;
     else gaugePM25Chart = chart;
@@ -63,7 +62,7 @@ function drawGauge(pmType, value, station) {
     stationEl.textContent = `측정소: ${station}`;
   }
 
-async function fetchAirData(station) {
+  async function fetchAirData(station) {
     try {
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
       console.log('AirKorea URL:', url);
@@ -71,12 +70,16 @@ async function fetchAirData(station) {
       console.log('AirKorea 응답 상태:', res.status);
       if (!res.ok) {
         const text = await res.text();
-        console.log('AirKorea 응답 텍스트:', text);  // HTML 오류 로그
+        console.log('AirKorea 응답 텍스트:', text);
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
       console.log('AirKorea 데이터:', data);
       const item = data.response.body.items[0];
+      if (!item) {
+        console.log('AirKorea 아이템 없음, 기본값 사용');
+        return { pm10: 0, pm25: 0, station };
+      }
       return { pm10: parseFloat(item.pm10Value) || 0, pm25: parseFloat(item.pm25Value) || 0, station };
     } catch (e) {
       console.error('AirKorea API 오류:', e);
@@ -84,7 +87,7 @@ async function fetchAirData(station) {
     }
   }
 
- async function getNearestStation(lat, lon) {
+  async function getNearestStation(lat, lon) {
     try {
       const tmUrl = `${KAKAO_COORD_API}?x=${lon}&y=${lat}`;
       console.log('Kakao TM URL:', tmUrl);
@@ -94,7 +97,7 @@ async function fetchAirData(station) {
       console.log('Kakao TM 응답 상태:', tmRes.status);
       if (!tmRes.ok) {
         const text = await tmRes.text();
-        console.log('Kakao TM 응답 텍스트:', text);  // 오류 로그
+        console.log('Kakao TM 응답 텍스트:', text);
         throw new Error(`Kakao HTTP ${tmRes.status}`);
       }
       const tmData = await tmRes.json();
@@ -107,7 +110,11 @@ async function fetchAirData(station) {
       console.log('AirKorea Nearby URL:', nearbyUrl);
       const res = await fetch(nearbyUrl);
       console.log('AirKorea Nearby 응답 상태:', res.status);
-      if (!res.ok) throw new Error(`AirKorea Nearby HTTP ${res.status}`);
+      if (!res.ok) {
+        const text = await res.text();
+        console.log('AirKorea Nearby 응답 텍스트:', text);
+        throw new Error(`AirKorea Nearby HTTP ${res.status}`);
+      }
       const data = await res.json();
       console.log('AirKorea Nearby 데이터:', data);
       return data.response.body.items[0]?.stationName || '서울 종로구';
@@ -139,7 +146,11 @@ async function fetchAirData(station) {
         headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
       });
       console.log('Kakao 검색 응답 상태:', res.status);
-      if (!res.ok) throw new Error(`Kakao HTTP ${res.status}`);
+      if (!res.ok) {
+        const text = await res.text();
+        console.log('Kakao 검색 응답 텍스트:', text);
+        throw new Error(`Kakao HTTP ${res.status}`);
+      }
       const { documents } = await res.json();
       console.log('Kakao 검색 데이터:', documents);
       sug.innerHTML = '';
@@ -167,7 +178,7 @@ async function fetchAirData(station) {
 
   document.getElementById('adminBtn').onclick = () => {
     const pw = prompt('비밀번호');
-    if (pw === 'leesoul0407!') location.href = '/front/admin.html';
+    if (pw === 'leesoul0407!') location.href = 'admin.html';
   };
 
   navigator.geolocation.getCurrentPosition(
@@ -178,7 +189,7 @@ async function fetchAirData(station) {
     }
   );
 
-function updateDateTime() {
+  function updateDateTime() {
     document.getElementById('time').textContent = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
   }
   setInterval(updateDateTime, 60000);
@@ -189,7 +200,11 @@ function updateDateTime() {
         headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
       });
       console.log('Kakao 지역 응답 상태:', res.status);
-      if (!res.ok) throw new Error(`Kakao HTTP ${res.status}`);
+      if (!res.ok) {
+        const text = await res.text();
+        console.log('Kakao 지역 응답 텍스트:', text);
+        throw new Error(`Kakao HTTP ${res.status}`);
+      }
       const { documents } = await res.json();
       console.log('Kakao 지역 데이터:', documents);
       document.getElementById('region').textContent = documents[0]?.address?.address_name || '--';
