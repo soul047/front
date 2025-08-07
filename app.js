@@ -102,8 +102,8 @@
       }
       const tmData = await tmRes.json();
       console.log('Kakao TM 데이터:', tmData);
-      const tmX = tmData.documents[0]?.address?.x || lon;
-      const tmY = tmData.documents[0]?.address?.y || lat;
+      const tmX = tmData.documents[0]?.x || lon;  // TM X (수정: address.x 대신 x 사용)
+      const tmY = tmData.documents[0]?.y || lat;  // TM Y (수정: address.y 대신 y 사용)
       console.log('TM X/Y:', tmX, tmY);
 
       const nearbyUrl = NEARBY_API.replace('{tmX}', tmX).replace('{tmY}', tmY);
