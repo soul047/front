@@ -1,4 +1,7 @@
 (() => {
+  // stations 배열은 gps.js 파일로 분리되었습니다.
+  // 이 파일은 gps.js에 정의된 전역 stations 변수를 사용합니다.
+
   const CAT = [
     { name: '좋음', max: 28, color: '#1E88E5' },
     { name: '보통', max: 80, color: '#43A047' },
@@ -17,6 +20,27 @@
   const suggestionsEl = document.getElementById('suggestions');
   const errorEl = document.getElementById('error-message');
   const gaugesEl = document.getElementById('gauges');
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const dx = lon1 - lon2;
+    const dy = lat1 - lat2;
+    return dx * dx + dy * dy;
+  }
+
+  function findNearestStation(userLat, userLon) {
+    let closestStation = null;
+    let minDistance = Infinity;
+
+    // gps.js에 정의된 전역 stations 배열을 사용합니다.
+    stations.forEach(station => {
+      const distance = calculateDistance(userLat, userLon, station.lat, station.lon);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestStation = station;
+      }
+    });
+    return closestStation.name;
+  }
 
   function getStatus(v) {
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
@@ -44,16 +68,13 @@
 
   async function fetchAirData(station) {
     try {
-      if (!station) return null;
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`AirKorea 데이터 API HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`AirKorea 데이터 API 오류`);
       const data = await res.json();
       const item = data.response.body.items[0];
-
       if (!item || !item.pm10Value) {
-        console.warn(`'${station}' 측정소 데이터를 찾을 수 없습니다.`);
-        return null;
+        return { pm10: 0, pm25: 0, station: `${station} (데이터 없음)` };
       }
       return { 
         pm10: parseFloat(item.pm10Value) || 0, 
@@ -61,61 +82,21 @@
         station: station
       };
     } catch (e) {
-      console.error(`'${station}' 측정소 조회 중 오류:`, e);
-      return null;
-    }
-  }
-
-  async function updateAirQuality(lat, lon) {
-    let regionData;
-    try {
-      const res = await fetch(`${KAKAO_COORD_API}?x=${lon}&y=${lat}`, {
-        headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
-      });
-      if (!res.ok) throw new Error('카카오 지역 변환 실패');
-      const data = await res.json();
-      regionData = data.documents[0]?.address;
-      if (!regionData) throw new Error('주소 정보를 찾을 수 없음');
-      
-      document.getElementById('region').textContent = regionData.address_name;
-
-    } catch (e) {
-      console.error("주소 정보 조회 실패:", e);
-      errorEl.textContent = "주소 정보를 가져오는 데 실패했습니다.";
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    // --- 새로운 역순 탐색 로직 ---
-    const addressParts = regionData.address_name.split(' ');
-    let airData = null;
-
-    for (let i = addressParts.length - 1; i >= 0; i--) {
-      // 행정단위(시,군,구,동...)와 숫자를 제거하여 핵심 이름 추출
-      const cleanName = addressParts[i].replace(/\d+/g, '').replace(/(시|군|구|읍|면|동|리)$/, '');
-      if (cleanName) {
-        airData = await fetchAirData(cleanName);
-        if (airData) {
-          break; // 데이터를 찾았으면 탐색 중지
-        }
-      }
-    }
-    
-    if (airData) {
-      drawGauge('PM10', airData.pm10, airData.station);
-      drawGauge('PM25', airData.pm25, airData.station);
-    } else {
-      errorEl.textContent = `'${regionData.region_2depth_name}' 근처의 측정소를 자동으로 찾지 못했습니다. 가까운 도시나 다른 동 이름으로 직접 검색해 보세요.`;
-      errorEl.style.display = 'block';
-      inputEl.focus();
-      drawGauge('PM10', 0, '정보 없음');
-      drawGauge('PM25', 0, '정보 없음');
+      console.error(`AirKorea 데이터 API 오류:`, e);
+      return { pm10: 0, pm25: 0, station: `${station} (조회 실패)` };
     }
   }
 
   async function updateAll(lat, lon) {
     errorEl.style.display = 'none';
-    await updateAirQuality(lat, lon);
+
+    const stationName = findNearestStation(lat, lon);
+    const airData = await fetchAirData(stationName);
+    
+    drawGauge('PM10', airData.pm10, airData.station);
+    drawGauge('PM25', airData.pm25, airData.station);
+
+    updateRegionText(lat, lon);
     updateDateTime();
     
     if (gaugesEl) {
@@ -134,9 +115,7 @@
         return;
       }
       try {
-        const res = await fetch(`${KAKAO_ADDRESS_API}?query=${encodeURIComponent(query)}`, {
-          headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
-        });
+        const res = await fetch(`${KAKAO_ADDRESS_API}?query=${encodeURIComponent(query)}`, { headers: { Authorization: `KakaoAK ${KAKAO_KEY}` } });
         if (!res.ok) return;
         const { documents } = await res.json();
         suggestionsEl.innerHTML = '';
@@ -164,9 +143,7 @@
     }
     suggestionsEl.innerHTML = '';
     try {
-      const res = await fetch(`${KAKAO_ADDRESS_API}?query=${encodeURIComponent(query)}`, {
-        headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
-      });
+      const res = await fetch(`${KAKAO_ADDRESS_API}?query=${encodeURIComponent(query)}`, { headers: { Authorization: `KakaoAK ${KAKAO_KEY}` } });
       if (!res.ok) throw new Error();
       const { documents } = await res.json();
       if (documents.length > 0) {
@@ -187,13 +164,26 @@
     p => updateAll(p.coords.latitude, p.coords.longitude),
     () => {
       alert('위치 정보를 가져올 수 없습니다. 기본 위치(서울 종로구)로 조회합니다.');
-      updateAll(37.5729, 126.9794);
+      updateAll(37.572016, 126.975319);
     }
   );
 
   function updateDateTime() {
     const timeEl = document.getElementById('time');
     if(timeEl) timeEl.textContent = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+  }
+  
+  async function updateRegionText(lat, lon) {
+    const regionEl = document.getElementById('region');
+    if (!regionEl) return;
+    try {
+      const res = await fetch(`${KAKAO_COORD_API}?x=${lon}&y=${lat}`, { headers: { Authorization: `KakaoAK ${KAKAO_KEY}` } });
+      if (!res.ok) throw new Error();
+      const { documents } = await res.json();
+      regionEl.textContent = documents[0]?.address?.address_name || '--';
+    } catch (e) {
+      regionEl.textContent = '주소 조회 실패';
+    }
   }
   
   updateDateTime();
