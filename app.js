@@ -11,9 +11,9 @@
   
   const AIRKOREA_API = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${AIRKOREA_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName={station}&dataTerm=DAILY&ver=1.3`;
   
-  // --- API 호출 수정 ---
-  // 누락되었던 버전 정보(&ver=1.0)를 추가합니다.
-  const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}&ver=1.0`;
+  // --- 최종 API 호출 수정 ---
+  // numOfRows와 pageNo 파라미터를 추가합니다.
+  const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}&numOfRows=1&pageNo=1&ver=1.0`;
   
   const KAKAO_ADDRESS_API = `https://dapi.kakao.com/v2/local/search/address.json`;
   const KAKAO_COORD_API = `https://dapi.kakao.com/v2/local/geo/coord2address.json`;
@@ -82,7 +82,10 @@
       const nearbyUrl = NEARBY_API.replace('{tmX}', tmX).replace('{tmY}', tmY);
       const res = await fetch(nearbyUrl);
       if (!res.ok) throw new Error(`AirKorea 측정소 API HTTP ${res.status}`);
-      const data = await res.json();
+      
+      const text = await res.text(); // 응답을 텍스트로 먼저 확인
+      const data = JSON.parse(text); // 텍스트를 JSON으로 파싱
+
       const item = data.response.body.items[0];
       if (!item) throw new Error('주변 측정소 정보를 찾을 수 없습니다.');
       
