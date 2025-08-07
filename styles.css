@@ -46,8 +46,8 @@ header {
 }
 
 header h1 {
-  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 변경 */
-  font-weight: 800; /* 굵기 적용 */
+  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 적용 */
+  font-weight: 800;
   font-size: 2.8rem;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
@@ -58,7 +58,7 @@ header h1 {
   justify-content: center;
   gap: 2rem;
   color: var(--light-text-color);
-  margin-top: 2rem;
+  margin-top: 1rem; /* 타이틀 아래로 옮기면서 마진 조정 */
   text-align: center;
 }
 
@@ -87,7 +87,7 @@ header h1 {
 
 .gauge-container h2 {
   margin-top: 0;
-  font-family: 'Noto Sans KR', sans-serif; /* 제목은 기본 폰트로 유지 */
+  font-family: 'Noto Sans KR', sans-serif;
   font-weight: 700;
   font-size: 1.5rem;
   margin-bottom: 1rem;
@@ -135,8 +135,8 @@ header h1 {
 }
 
 .gauge-status {
-  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 변경 */
-  font-weight: 800; /* 굵기 적용 */
+  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 적용 */
+  font-weight: 800;
   font-size: 2.5rem;
   position: absolute;
   top: 50%;
@@ -145,8 +145,8 @@ header h1 {
 }
 
 .gauge-value {
-  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 변경 */
-  font-weight: 700; /* 굵기 적용 */
+  font-family: 'SeoulNamsan-Alert', sans-serif; /* 폰트 적용 */
+  font-weight: 700;
   font-size: 1.3rem;
   color: var(--light-text-color);
   position: absolute;
@@ -162,145 +162,30 @@ header h1 {
   margin-top: 1rem;
 }
 
-/* 검색 섹션 */
-#search {
-  margin: 2rem 0;
-  position: relative;
-  width: 100%;
-  max-width: 500px;
-  display: flex;
-}
-
-#place {
-  flex-grow: 1;
-  padding: 12px 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px 0 0 8px;
-  font-size: 1rem;
-}
-
-#place:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-}
-
-#searchBtn {
-  padding: 12px 20px;
-  border: none;
-  background-color: var(--primary-color);
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 0 8px 8px 0;
-  transition: background-color 0.2s;
-}
-
-#searchBtn:hover {
-  background-color: #0056b3;
-}
-
-#suggestions {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  z-index: 10;
-  box-shadow: var(--shadow);
-}
-
-#suggestions li {
-  padding: 12px 15px;
-  cursor: pointer;
-}
-
-#suggestions li:hover {
-  background-color: #f0f0f0;
-}
-
-/* 기준 정보 섹션 */
-#criteria {
-  width: 100%;
-  max-width: 800px;
-}
-
-.criteria-card {
-  background: var(--card-color);
-  padding: 1.5rem;
-  border-radius: 15px;
-  box-shadow: var(--shadow);
-}
-
-.criteria-card h3 {
-  margin-top: 0;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.8rem;
-  margin-bottom: 1rem;
-}
-
-.criteria-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.criteria-card li {
-  padding: 0.5rem 0;
-}
-
-/* 푸터 */
-footer {
-  text-align: center;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  width: 100%;
-  max-width: 800px;
-  color: var(--light-text-color);
-}
+/* 다른 섹션들은 이전과 동일 */
+#search { margin: 2rem 0; position: relative; width: 100%; max-width: 500px; display: flex; }
+#place { flex-grow: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px 0 0 8px; font-size: 1rem; }
+#place:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
+#searchBtn { padding: 12px 20px; border: none; background-color: var(--primary-color); color: white; font-size: 1rem; cursor: pointer; border-radius: 0 8px 8px 0; transition: background-color 0.2s; }
+#searchBtn:hover { background-color: #0056b3; }
+#suggestions { list-style: none; margin: 0; padding: 0; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-color); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; z-index: 10; box-shadow: var(--shadow); }
+#suggestions li { padding: 12px 15px; cursor: pointer; }
+#suggestions li:hover { background-color: #f0f0f0; }
+#criteria { width: 100%; max-width: 800px; margin-top: 2rem; }
+.criteria-card { background: var(--card-color); padding: 1.5rem; border-radius: 15px; box-shadow: var(--shadow); }
+.criteria-card h3 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1rem; }
+.criteria-card ul { list-style: none; padding: 0; margin: 0; }
+.criteria-card li { padding: 0.5rem 0; }
+footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); width: 100%; max-width: 800px; color: var(--light-text-color); }
 
 /* 모바일 반응형 디자인 */
 @media (max-width: 768px) {
-  body {
-    padding: 15px;
-  }
-  
-  header h1 {
-    font-size: 2.2rem;
-  }
-  
-  #gauges {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .gauge-wrapper {
-    width: 180px;
-    height: 180px;
-  }
-
-  .gauge-hole {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .gauge-status {
-    font-size: 2rem;
-  }
-  
-  .gauge-value {
-    font-size: 1.1rem;
-  }
-
-  .info-row {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+  body { padding: 15px; }
+  header h1 { font-size: 2.2rem; }
+  .info-row { flex-direction: column; gap: 0.5rem; }
+  #gauges { flex-direction: column; gap: 1.5rem; }
+  .gauge-wrapper { width: 180px; height: 180px; }
+  .gauge-hole { width: 120px; height: 120px; }
+  .gauge-status { font-size: 2rem; }
+  .gauge-value { font-size: 1.1rem; }
 }
