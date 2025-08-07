@@ -4,8 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>후다닥 미세먼지 피하기</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/front/styles.css">
+  <link rel="icon" href="/front/favicon.ico">
   <script src="https://cdn.jsdelivr.net/npm/gauge.js@1.3.7/dist/gauge.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
+  <script>
+    window.env = {
+      AIRKOREA_KEY: 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu+Rc8+ySKeHrYO6qaS19Sg==',
+      KAKAO_KEY: 'df1047fb57dcad7bb8270eae8272c4f6'
+    };
+  </script>
 </head>
 <body>
   <header>
@@ -15,7 +23,6 @@
       <p>시간: <span id="time">--</span></p>
     </div>
   </header>
-
   <section id="gauges">
     <div class="gauge-container">
       <h2>미세먼지</h2>
@@ -30,13 +37,11 @@
       <p id="stationPM25" class="station-info">--</p>
     </div>
   </section>
-
   <section id="search">
     <input type="text" id="place" placeholder="지역 검색">
     <ul id="suggestions"></ul>
     <button id="searchBtn">검색</button>
   </section>
-
   <section id="criteria">
     <div class="criteria-card">
       <h3>미세먼지 기준</h3>
@@ -48,12 +53,10 @@
       </ul>
     </div>
   </section>
-
   <footer>
     <p>© 2025년 08월 7일 minhoolee</p>
     <button id="adminBtn" style="font-size: small; opacity: 0.5;">관리자 로그인</button>
   </footer>
-
-  <script src="app.js"></script>
+  <script src="/front/app.js"></script>
 </body>
 </html>
