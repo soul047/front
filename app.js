@@ -160,6 +160,19 @@
     }
   };
 
+   // --- 관리자 로그인 버튼 핸들러 다시 추가 ---
+  const adminBtn = document.getElementById('adminBtn');
+  if (adminBtn) {
+    adminBtn.onclick = () => {
+      const pw = prompt('비밀번호를 입력하세요.');
+      if (pw === 'leesoul0407!') {
+        window.location.href = 'admin.html';
+      } else if (pw) { // 사용자가 무언가 입력했지만 틀렸을 경우
+        alert('비밀번호가 일치하지 않습니다.');
+      }
+    };
+  }
+
   navigator.geolocation.getCurrentPosition(
     p => updateAll(p.coords.latitude, p.coords.longitude),
     () => {
