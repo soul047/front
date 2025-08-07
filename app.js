@@ -6,8 +6,8 @@
     { name: '매우나쁨', max: 1000, color: '#D32F2F' }
   ];
 
-const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu+Rc8+ySKeHrYO6qaS19Sg==';
-  const KAKAO_KEY = window.env?.KAKAO_KEY || 'df1047fb57dcad7bb8270eae8272c4f6';
+const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D';
+  const KAKAO_KEY = window.env?.KAKAO_KEY || 'be29697319e13590895593f5f5508348';
   const AIRKOREA_API = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${AIRKOREA_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName={station}&dataTerm=DAILY&ver=1.3`;
   const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}`;
   const KAKAO_ADDRESS_API = `https://dapi.kakao.com/v2/local/search/address.json`;
@@ -69,7 +69,11 @@ async function fetchAirData(station) {
       console.log('AirKorea URL:', url);
       const res = await fetch(url);
       console.log('AirKorea 응답 상태:', res.status);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const text = await res.text();
+        console.log('AirKorea 응답 텍스트:', text);  // HTML 오류 로그
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       console.log('AirKorea 데이터:', data);
       const item = data.response.body.items[0];
@@ -88,7 +92,11 @@ async function fetchAirData(station) {
         headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
       });
       console.log('Kakao TM 응답 상태:', tmRes.status);
-      if (!tmRes.ok) throw new Error(`Kakao HTTP ${tmRes.status}`);
+      if (!tmRes.ok) {
+        const text = await tmRes.text();
+        console.log('Kakao TM 응답 텍스트:', text);  // 오류 로그
+        throw new Error(`Kakao HTTP ${tmRes.status}`);
+      }
       const tmData = await tmRes.json();
       console.log('Kakao TM 데이터:', tmData);
       const tmX = tmData.documents[0]?.address?.x || lon;
