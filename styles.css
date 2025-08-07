@@ -246,28 +246,31 @@ footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1p
   }
 }
 
-/* === 미세먼지 기준 색상 표시 === */
+/* === 미세먼지 기준 색상 표시 스타일 === */
 .color-indicator {
-display: inline-block;
-width: 12px;
-height: 12px;
-border-radius: 50%;
-margin-right: 0.5rem;
-vertical-align: middle;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 10px;
+  /* 글씨와 수직 중앙 정렬을 위해 추가 */
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
 }
 
-.color-indicator.좋음 {
-background-color: #1E88E5;
+.color-indicator.good {
+  background-color: #1E88E5; /* 좋음 */
 }
 
-.color-indicator.보통 {
-background-color: #43A047;
+.color-indicator.normal {
+  background-color: #43A047; /* 보통 */
 }
 
-.color-indicator.나쁨 {
-background-color: #F57C00;
+.color-indicator.bad {
+  background-color: #F57C00; /* 나쁨 */
 }
 
-.color-indicator.매우나쁨 {
-background-color: #D32F2F;
+.color-indicator.very-bad {
+  background-color: #D32F2F; /* 매우나쁨 (빨간색) */
 }

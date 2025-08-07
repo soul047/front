@@ -9,7 +9,6 @@
   const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D';
   const KAKAO_KEY = window.env?.KAKAO_KEY || 'be29697319e13590895593f5f5508348';
   
-  // 성공적으로 동작하는 API만 남겨둡니다.
   const AIRKOREA_API = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${AIRKOREA_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName={station}&dataTerm=DAILY&ver=1.3`;
   const KAKAO_ADDRESS_API = `https://dapi.kakao.com/v2/local/search/address.json`;
   const KAKAO_COORD_API = `https://dapi.kakao.com/v2/local/geo/coord2address.json`;
@@ -42,17 +41,15 @@
     stationEl.textContent = `측정소: ${station}`;
   }
 
-  // fetchAirData 함수를 약간 수정하여, 데이터가 실제로 있는지 여부를 반환하도록 합니다.
   async function fetchAirData(station) {
     try {
-      if (!station) return null; // 검색할 측정소 이름이 없으면 null 반환
+      if (!station) return null;
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
       const res = await fetch(url);
       if (!res.ok) throw new Error(`AirKorea 데이터 API HTTP ${res.status}`);
       const data = await res.json();
       const item = data.response.body.items[0];
       
-      // 데이터가 없거나, pm10Value가 유효하지 않으면 null 반환
       if (!item || !item.pm10Value) {
         console.warn(`'${station}' 측정소 데이터를 찾을 수 없습니다.`);
         return null;
@@ -60,7 +57,7 @@
       return { 
         pm10: parseFloat(item.pm10Value) || 0, 
         pm25: parseFloat(item.pm25Value) || 0, 
-        station: station // 실제 사용된 측정소 이름
+        station: station
       };
     } catch (e) {
       console.error(`'${station}' 측정소 조회 중 오류:`, e);
@@ -68,9 +65,7 @@
     }
   }
 
-  // --- 여기가 완전히 새로워진 핵심 로직입니다 ---
   async function updateAirQuality(lat, lon) {
-    // 1. 좌표로 행정구역 정보 가져오기
     let regionData;
     try {
       const res = await fetch(`${KAKAO_COORD_API}?x=${lon}&y=${lat}`, {
@@ -81,7 +76,6 @@
       regionData = data.documents[0]?.address;
       if (!regionData) throw new Error('주소 정보를 찾을 수 없음');
       
-      // 화면 상단 지역 이름 업데이트
       document.getElementById('region').textContent = regionData.address_name;
 
     } catch (e) {
@@ -90,35 +84,37 @@
       return;
     }
 
-    // 2. 행정구역 이름으로 측정소 데이터 조회 (동 -> 구 -> 시 순으로 시도)
-    const dongName = regionData.region_3depth_name; // 동 이름 (예: 가평읍)
-    const guName = regionData.region_2depth_name; // 군/구 이름 (예: 가평군)
-    
-    let airData = await fetchAirData(dongName); // 1순위: 동 이름으로 시도
+    // --- 측정소 탐색 로직 개선 (3단계) ---
+    const dongName = regionData.region_3depth_name;
+    const guName = regionData.region_2depth_name;
+    const siName = regionData.region_1depth_name === '경기' ? guName : regionData.region_1depth_name; // '경기도' 대신 '부천시'를 사용하기 위한 처리
+
+    let airData = await fetchAirData(dongName); // 1순위: 동 이름
     
     if (!airData) {
-      airData = await fetchAirData(guName); // 2순위: 군/구 이름으로 시도
+      airData = await fetchAirData(guName); // 2순위: 군/구 이름
     }
 
-    // 3. 최종적으로 데이터를 화면에 그리기
+    if (!airData && siName !== guName) { // 3순위: 시 이름 (군/구 이름과 다를 경우에만)
+      airData = await fetchAirData(siName);
+    }
+    
     if (airData) {
       drawGauge('PM10', airData.pm10, airData.station);
       drawGauge('PM25', airData.pm25, airData.station);
     } else {
-      alert(`'${guName}' 지역의 측정소 데이터를 찾을 수 없습니다. 다른 지역을 검색해 주세요.`);
-      // 데이터가 없을 경우 게이지 초기화
+      // 3단계 탐색 모두 실패 시, 사용자에게 더 친절하게 안내
+      alert(`'${guName}' 근처의 측정소 데이터를 찾을 수 없습니다.\n가까운 주요 도시 이름으로 직접 검색해 보세요.`);
       drawGauge('PM10', 0, '정보 없음');
       drawGauge('PM25', 0, '정보 없음');
     }
   }
 
-  // updateAll 함수를 새 로직에 맞게 간소화
   async function updateAll(lat, lon) {
     updateAirQuality(lat, lon);
     updateDateTime();
   }
   
-  // (이하 검색, 현재위치 등 나머지 코드는 대부분 동일)
   const input = document.getElementById('place');
   const sug = document.getElementById('suggestions');
   let debounceTimer;
