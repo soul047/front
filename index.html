@@ -16,11 +16,8 @@
 <body>
   <header>
     <h1>후다닥 미세먼지 피하기</h1>
-    <div class="info-row">
-      <p>지역: <span id="region">--</span></p>
-      <p>시간: <span id="time">--</span></p>
-    </div>
   </header>
+
   <section id="gauges">
     <div class="gauge-container">
       <h2>미세먼지</h2>
@@ -39,26 +36,35 @@
       <p id="stationPM25" class="station-info">--</p>
     </div>
   </section>
+
+  <div class="info-row">
+    <p><strong>지역:</strong> <span id="region">--</span></p>
+    <p><strong>측정 기준:</strong> <span id="time">--</span></p>
+  </div>
+
   <section id="search">
-    <input type="text" id="place" placeholder="지역 검색">
+    <input type="text" id="place" placeholder="다른 지역 주소 검색 (예: 강남구, 제주공항)">
     <ul id="suggestions"></ul>
     <button id="searchBtn">검색</button>
   </section>
+
   <section id="criteria">
     <div class="criteria-card">
-      <h3>미세먼지 기준</h3>
+      <h3>미세먼지 농도 등급</h3>
       <ul>
-        <li>좋음 (0~28): 맑은 공기 상태</li>
-        <li>보통 (29~80): 일반적으로 문제가 없는 수준</li>
-        <li>나쁨 (81~146): 민감군 주의 필요</li>
-        <li>매우나쁨 (≥147): 외출 자제 권고</li>
+        <li><strong>좋음 (0~28 µg/m³):</strong> 맑은 공기 상태, 실외 활동에 좋음</li>
+        <li><strong>보통 (29~80 µg/m³):</strong> 일반적으로 문제가 없는 무난한 수준</li>
+        <li><strong>나쁨 (81~146 µg/m³):</strong> 민감군은 장시간 실외 활동 자제 필요</li>
+        <li><strong>매우나쁨 (147 µg/m³ 이상):</strong> 가급적 실외 활동 자제 권고</li>
       </ul>
     </div>
   </section>
+
   <footer>
     <p>© 2025년 08월 7일 minhoolee</p>
     <button id="adminBtn" style="font-size: small; opacity: 0.5;">관리자 로그인</button>
   </footer>
+  
   <script src="app.js"></script>
 </body>
 </html>
