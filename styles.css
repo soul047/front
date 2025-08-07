@@ -1,21 +1,15 @@
-/* 기본 & 전체 레이아웃 스타일 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
 
-/* --- 애니메이션 추가 --- */
-/* 브라우저에게 --angle과 --gauge-color 속성을 애니메이션 할 수 있다고 알려줍니다. */
 @property --angle {
   syntax: '<angle>';
   inherits: false;
   initial-value: 0deg;
 }
-
 @property --gauge-color {
   syntax: '<color>';
   inherits: false;
   initial-value: #eee;
 }
-/* --- 애니메이션 추가 끝 --- */
-
 
 :root {
   --background-color: #f4f6f8;
@@ -41,27 +35,25 @@ body {
 
 header {
   text-align: center;
-  margin-bottom: 2rem;
   width: 100%;
   max-width: 800px;
+  margin-bottom: 2rem;
 }
 
 header h1 {
   font-weight: 700;
   font-size: 2.5rem;
   color: var(--primary-color);
-  margin-bottom: 0rem;
+  margin-bottom: 0.3rem;
 }
 
-/* === 버전 정보 스타일 === */
 .version-info {
-display: inline-block;
-background-color: #f0f0f0;
-color: var(--light-text-color);
-font-size: 0.8rem;
-padding: 0.3rem 0.5rem;
-border-radius: 5px;
-margin-top: 0.3rem;
+  display: inline-block;
+  background-color: #bedaf7;
+  color: var(--light-text-color);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .info-row {
@@ -69,9 +61,8 @@ margin-top: 0.3rem;
   justify-content: center;
   gap: 2rem;
   color: var(--light-text-color);
-  margin-top: 0.5rem;
-  margin-bottom: 0.6rem;
   text-align: center;
+  margin-top: 1rem;
 }
 
 #gauges {
@@ -121,10 +112,7 @@ margin-top: 0.3rem;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  /* --- 애니메이션 추가 --- */
-  /* JS가 변경할 --gauge-color와 --angle 변수를 사용해 배경을 그립니다. */
   background: conic-gradient(var(--gauge-color) var(--angle), #eee var(--angle));
-  /* --angle과 --gauge-color 값이 변할 때 애니메이션 효과를 적용합니다. */
   transition: --angle 1s ease-out, --gauge-color 0.5s ease;
 }
 
@@ -137,7 +125,6 @@ margin-top: 0.3rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
 }
 
 .gauge-status {
@@ -147,18 +134,17 @@ margin-top: 0.3rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%);
-  transition: color 0.5s ease; /* 글씨 색상도 부드럽게 변경 */
-  white-space: nowrap; /* 줄바꿈 방지 */
+  transition: color 0.5s ease;
 }
 
 .gauge-value {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--light-text-color);
+  white-space: nowrap;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, 60%);
-  white-space: nowrap; 
 }
 
 .station-info {
@@ -168,8 +154,21 @@ margin-top: 0.3rem;
   margin-top: 1rem;
 }
 
-/* 이하 스타일은 변경 없음 */
-#search { margin: 2rem 0; position: relative; width: 100%; max-width: 500px; display: flex; }
+.error-message {
+  display: none;
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+  margin: -1rem 0 1.5rem 0;
+  background-color: #FFF3CD;
+  color: #856404;
+  border: 1px solid #FFEEBA;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+#search { margin: 0; position: relative; width: 100%; max-width: 500px; display: flex; }
 #place { flex-grow: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px 0 0 8px; font-size: 1rem; }
 #place:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
 #searchBtn { padding: 12px 20px; border: none; background-color: var(--primary-color); color: white; font-size: 1rem; cursor: pointer; border-radius: 0 8px 8px 0; transition: background-color 0.2s; }
@@ -177,12 +176,23 @@ margin-top: 0.3rem;
 #suggestions { list-style: none; margin: 0; padding: 0; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-color); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; z-index: 10; box-shadow: var(--shadow); }
 #suggestions li { padding: 12px 15px; cursor: pointer; }
 #suggestions li:hover { background-color: #f0f0f0; }
+
 #criteria { width: 100%; max-width: 800px; margin-top: 2rem; }
 .criteria-card { background: var(--card-color); padding: 1.5rem; border-radius: 15px; box-shadow: var(--shadow); }
 .criteria-card h3 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1rem; }
 .criteria-card ul { list-style: none; padding: 0; margin: 0; }
 .criteria-card li { padding: 0.5rem 0; }
+
+.color-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; vertical-align: middle; position: relative; top: -1px; }
+.color-indicator.good { background-color: #1E88E5; }
+.color-indicator.normal { background-color: #43A047; }
+.color-indicator.bad { background-color: #F57C00; }
+.color-indicator.very-bad { background-color: #D32F2F; }
+
 footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); width: 100%; max-width: 800px; color: var(--light-text-color); }
+
+@keyframes blink-animation { 50% { opacity: 0.7; } }
+.blink { animation: blink-animation 0.5s ease-in-out; }
 
 @media (max-width: 768px) {
   body { padding: 15px; }
@@ -193,95 +203,4 @@ footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1p
   .gauge-hole { width: 120px; height: 120px; }
   .gauge-status { font-size: 1.6rem; }
   .gauge-value { font-size: 1rem; }
-}
-
-/* =================================== */
-/* ==== 관리자 페이지 스타일 (추가) ==== */
-/* =================================== */
-
-#dashboard {
-  display: flex;
-  gap: 2rem;
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  /* 메인 페이지의 .criteria-card 스타일을 재사용 */
-  background: var(--card-color);
-  padding: 1.5rem 2rem;
-  border-radius: 15px;
-  box-shadow: var(--shadow);
-  flex: 1;
-  text-align: center;
-}
-
-.stat-card h2 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
-  color: var(--light-text-color);
-}
-
-.count-text {
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin: 0;
-}
-
-.back-btn {
-  display: inline-block;
-  padding: 12px 25px;
-  border: none;
-  background-color: var(--primary-color);
-  color: white;
-  font-size: 1rem;
-  font-weight: 700;
-  text-decoration: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-bottom: 2rem;
-}
-
-.back-btn:hover {
-  background-color: #0056b3;
-}
-
-/* 관리자 페이지 반응형 */
-@media (max-width: 768px) {
-  #dashboard {
-    flex-direction: column;
-  }
-}
-
-/* === 미세먼지 기준 색상 표시 스타일 === */
-.color-indicator {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 10px;
-  /* 글씨와 수직 중앙 정렬을 위해 추가 */
-  vertical-align: middle;
-  position: relative;
-  top: -1px;
-}
-
-.color-indicator.good {
-  background-color: #1E88E5; /* 좋음 */
-}
-
-.color-indicator.normal {
-  background-color: #43A047; /* 보통 */
-}
-
-.color-indicator.bad {
-  background-color: #F57C00; /* 나쁨 */
-}
-
-.color-indicator.very-bad {
-  background-color: #D32F2F; /* 매우나쁨 (빨간색) */
 }
