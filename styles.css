@@ -392,3 +392,31 @@ footer button:hover {
     flex-grow: 1;
   }
 }
+
+/* ... (기존 코드 상단 동일) */
+
+/* 상태 색상 클래스 (CAT 따름) */
+.blue { color: #1E88E5; }
+.green { color: #43A047; }
+.orange { color: #F57C00; }
+.red { color: #D32F2F; }
+
+/* 게이지 스타일 */
+.gauge-container {
+  position: relative;
+  text-align: center;
+}
+
+.gauge-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.unit-text {
+  font-size: 0.8rem;
+  color: #666;
+}

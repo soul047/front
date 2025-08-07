@@ -17,8 +17,8 @@
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
 
-  const createGauge = (canvasId, value) => {
-    return new Chart(document.getElementById(canvasId), {
+  const createGauge = (canvasId, value, statusTextId) => {
+    const chart = new Chart(document.getElementById(canvasId), {
       type: 'doughnut',
       data: {
         datasets: [{
@@ -40,12 +40,20 @@
         animation: { animateRotate: true }
       }
     });
+
+    // 가운데 상태 표시
+    const status = getStatus(value);
+    document.getElementById(statusTextId).textContent = status.name;
+    document.getElementById(statusTextId).className = status.color.replace('#', '');
+
+    return chart;
   };
 
   let gaugePM10Chart, gaugePM25Chart;
 
   function drawGauge(pmType, value, station) {
     const canvasId = pmType === 'PM10' ? 'gaugePM10' : 'gaugePM25';
+    const statusTextId = pmType === 'PM10' ? 'gaugePM10Text' : 'gaugePM25Text';
     const statusEl = document.getElementById(`status${pmType}`);
     const stationEl = document.getElementById(`station${pmType}`);
     const status = getStatus(value);
@@ -53,13 +61,15 @@
     if (pmType === 'PM10' && gaugePM10Chart) gaugePM10Chart.destroy();
     if (pmType === 'PM25' && gaugePM25Chart) gaugePM25Chart.destroy();
 
-    const chart = createGauge(canvasId, value);
+    const chart = createGauge(canvasId, value, statusTextId);
     if (pmType === 'PM10') gaugePM10Chart = chart;
     else gaugePM25Chart = chart;
 
     statusEl.textContent = status.name;
     statusEl.style.color = status.color;
     stationEl.textContent = `측정소: ${station}`;
+    stationEl.appendChild(document.createElement('br'));
+    stationEl.appendChild(document.createTextNode(`${value} µg/m³`));  // 하단 단위
   }
 
   async function fetchAirData(station) {
@@ -102,8 +112,8 @@
       }
       const tmData = await tmRes.json();
       console.log('Kakao TM 데이터:', tmData);
-      const tmX = tmData.documents[0]?.x || lon;  // TM X (수정: address.x 대신 x 사용)
-      const tmY = tmData.documents[0]?.y || lat;  // TM Y (수정: address.y 대신 y 사용)
+      const tmX = tmData.documents[0]?.x || lon;
+      const tmY = tmData.documents[0]?.y || lat;
       console.log('TM X/Y:', tmX, tmY);
 
       const nearbyUrl = NEARBY_API.replace('{tmX}', tmX).replace('{tmY}', tmY);

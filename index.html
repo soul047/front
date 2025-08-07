@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,10 +6,10 @@
   <title>후다닥 미세먼지 피하기</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="favicon.ico">
- <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
   <script>
     window.env = {
-      AIRKOREA_KEY: 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu+Rc8+ySKeHrYO6qaS19Sg==',
+      AIRKOREA_KEY: 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu+Rc8+ySKeHrYO6qaS19Sg==',  // Decoding으로 시도
       KAKAO_KEY: 'be29697319e13590895593f5f5508348'  // REST API 키
     };
   </script>
@@ -27,12 +26,14 @@
     <div class="gauge-container">
       <h2>미세먼지</h2>
       <canvas id="gaugePM10" width="200" height="200"></canvas>
+      <div class="gauge-text" id="gaugePM10Text"></div>
       <p id="statusPM10">--</p>
       <p id="stationPM10" class="station-info">--</p>
     </div>
     <div class="gauge-container">
       <h2>초미세먼지</h2>
       <canvas id="gaugePM25" width="200" height="200"></canvas>
+      <div class="gauge-text" id="gaugePM25Text"></div>
       <p id="statusPM25">--</p>
       <p id="stationPM25" class="station-info">--</p>
     </div>
