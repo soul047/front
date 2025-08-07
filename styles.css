@@ -395,16 +395,39 @@ footer button:hover {
 
 /* ... (기존 코드 상단 동일) */
 
-/* 상태 색상 클래스 (CAT 따름) */
+/* 상태 색상 클래스 */
 .blue { color: #1E88E5; }
 .green { color: #43A047; }
 .orange { color: #F57C00; }
 .red { color: #D32F2F; }
 
-/* 게이지 스타일 */
+/* 커스텀 Gauge 스타일 (휠/도넛 형태) */
 .gauge-container {
   position: relative;
   text-align: center;
+  width: 200px;
+  height: 200px;
+}
+
+.gauge-wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(var(--gauge-color) 0deg var(--gauge-deg)deg, #eee var(--gauge-deg)deg 360deg);
+  position: relative;
+  clip-path: polygon(0% 100%, 0% 50%, 100% 50%, 100% 100%);
+  transform: rotate(180deg);
+}
+
+.gauge-hole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: #f9f9f9;
 }
 
 .gauge-text {
@@ -419,4 +442,7 @@ footer button:hover {
 .unit-text {
   font-size: 0.8rem;
   color: #666;
+  margin-top: 5px;
 }
+
+/* ... (기존 코드 하단 동일) */

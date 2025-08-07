@@ -17,53 +17,22 @@
     return CAT.find(c => v <= c.max) || CAT[CAT.length - 1];
   }
 
-  const createGauge = (canvasId, value, statusTextId) => {
-    const chart = new Chart(document.getElementById(canvasId), {
-      type: 'doughnut',
-      data: {
-        datasets: [{
-          data: [value, 150 - value],
-          backgroundColor: [getStatus(value).color, '#eee'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        circumference: 180,
-        rotation: -90,
-        cutout: '70%',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false }
-        },
-        animation: { animateRotate: true }
-      }
-    });
-
-    // 가운데 상태 표시
-    const status = getStatus(value);
-    document.getElementById(statusTextId).textContent = status.name;
-    document.getElementById(statusTextId).className = status.color.replace('#', '');
-
-    return chart;
-  };
-
-  let gaugePM10Chart, gaugePM25Chart;
-
+  // 커스텀 Gauge (휠 형태, 가운데 뚫림, 색상 CAT 따름)
   function drawGauge(pmType, value, station) {
-    const canvasId = pmType === 'PM10' ? 'gaugePM10' : 'gaugePM25';
-    const statusTextId = pmType === 'PM10' ? 'gaugePM10Text' : 'gaugePM25Text';
+    const wheelId = pmType === 'PM10' ? 'gaugePM10' : 'gaugePM25';
+    const textId = pmType === 'PM10' ? 'gaugePM10Text' : 'gaugePM25Text';
     const statusEl = document.getElementById(`status${pmType}`);
     const stationEl = document.getElementById(`station${pmType}`);
     const status = getStatus(value);
 
-    if (pmType === 'PM10' && gaugePM10Chart) gaugePM10Chart.destroy();
-    if (pmType === 'PM25' && gaugePM25Chart) gaugePM25Chart.destroy();
+    const ratio = Math.min(value / 150, 1);
+    const deg = 360 * ratio;
+    document.getElementById(wheelId).style.background = `conic-gradient(${status.color} 0deg ${deg}deg, #eee ${deg}deg 360deg)`;
 
-    const chart = createGauge(canvasId, value, statusTextId);
-    if (pmType === 'PM10') gaugePM10Chart = chart;
-    else gaugePM25Chart = chart;
+    // 가운데 상태 표시
+    const textEl = document.getElementById(textId);
+    textEl.textContent = status.name;
+    textEl.style.color = status.color;
 
     statusEl.textContent = status.name;
     statusEl.style.color = status.color;
