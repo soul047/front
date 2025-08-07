@@ -8,8 +8,13 @@
 
   const AIRKOREA_KEY = window.env?.AIRKOREA_KEY || 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D';
   const KAKAO_KEY = window.env?.KAKAO_KEY || 'be29697319e13590895593f5f5508348';
+  
   const AIRKOREA_API = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${AIRKOREA_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName={station}&dataTerm=DAILY&ver=1.3`;
-  const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}`;
+  
+  // --- API 호출 수정 ---
+  // 누락되었던 버전 정보(&ver=1.0)를 추가합니다.
+  const NEARBY_API = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${AIRKOREA_KEY}&returnType=json&tmX={tmX}&tmY={tmY}&ver=1.0`;
+  
   const KAKAO_ADDRESS_API = `https://dapi.kakao.com/v2/local/search/address.json`;
   const KAKAO_COORD_API = `https://dapi.kakao.com/v2/local/geo/coord2address.json`;
   const KAKAO_TM_API = `https://dapi.kakao.com/v2/local/geo/transcoord.json`;
@@ -136,20 +141,17 @@
     }, 300); 
   });
 
-  // --- 검색 버튼 로직 수정 ---
-  // 이제 검색 버튼은 추천 목록이 아닌, 입력창의 텍스트를 기준으로 동작합니다.
   document.getElementById('searchBtn').onclick = async () => {
-    const query = input.value.trim(); // 입력창의 텍스트를 가져옴
+    const query = input.value.trim();
 
     if (!query) {
       alert('검색할 지역을 입력해 주세요.');
       return;
     }
 
-    sug.innerHTML = ''; // 열려 있는 추천 목록을 닫음
+    sug.innerHTML = '';
 
     try {
-      // 입력된 텍스트로 카카오에 직접 검색 요청
       const q = encodeURIComponent(query);
       const res = await fetch(`${KAKAO_ADDRESS_API}?query=${q}`, {
         headers: { Authorization: `KakaoAK ${KAKAO_KEY}` }
@@ -161,9 +163,7 @@
 
       if (documents.length > 0) {
         const firstResult = documents[0];
-        // 검색 결과의 첫 번째 항목 좌표로 미세먼지 정보 업데이트
         updateAll(firstResult.y, firstResult.x);
-        // 입력창의 값도 가장 정확한 주소로 업데이트
         input.value = firstResult.address_name;
       } else {
         alert(`'${query}'에 대한 검색 결과가 없습니다.`);
@@ -173,7 +173,6 @@
       alert('검색 중 오류가 발생했습니다.');
     }
   };
-  // --- 검색 버튼 로직 수정 끝 ---
 
   document.getElementById('adminBtn').onclick = () => {
     const pw = prompt('비밀번호');
@@ -205,7 +204,7 @@
       if (!res.ok) throw new Error(`Kakao 지역 변환 API HTTP ${res.status}`);
       const { documents } = await res.json();
       regionEl.textContent = documents[0]?.address?.address_name || '--';
-        } catch (e) {
+    } catch (e) {
       console.error('지역 업데이트 오류:', e);
       regionEl.textContent = '조회 실패';
     }
