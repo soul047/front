@@ -224,6 +224,31 @@
     }
   }
   
+  // --- 바로가기 팝업 로직 (추가) ---
+  function handlePwaPopup() {
+    const popup = document.getElementById('pwa-popup');
+    const closeBtn = document.getElementById('pwa-close-btn');
+    const PWA_PROMPT_SHOWN_KEY = 'pwaPromptShown';
+
+    // 이미 팝업을 본 적이 있으면 함수 종료
+    if (localStorage.getItem(PWA_PROMPT_SHOWN_KEY)) {
+      return;
+    }
+
+    if (popup && closeBtn) {
+      popup.style.display = 'flex'; // 팝업 보이기
+      
+      closeBtn.onclick = () => {
+        popup.style.display = 'none';
+        // 팝업을 닫았다는 사실을 localStorage에 기록
+        localStorage.setItem(PWA_PROMPT_SHOWN_KEY, 'true');
+      };
+    }
+  }
+
+  // 페이지 로드가 완료되면 팝업 로직 실행
+  window.addEventListener('load', handlePwaPopup);
+  
   updateDateTime();
   setInterval(updateDateTime, 60000);
 })();

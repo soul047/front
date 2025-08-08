@@ -5,7 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>후다닥 미세먼지 피하기</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="favicon.ico">
+  
+  <!-- 고해상도 아이콘 및 PWA 설정 -->
+  <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/1E88E5/FFFFFF?text=M">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/1E88E5/FFFFFF?text=M">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16/1E88E5/FFFFFF?text=M">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+
   <script>
     window.env = {
       AIRKOREA_KEY: 'I2wDgBTJutEeubWmNzwVS1jlGSGPvjidKMb5DwhKkjM2MMUst8KGPB2D03mQv8GHu%2BRc8%2BySKeHrYO6qaS19Sg%3D%3D',
@@ -19,7 +26,7 @@
     <div class="version-info">ver.1</div>
     <div class="info-row">
       <p><strong>접속지역:</strong> <span id="region">--</span></p>
-      <p><strong>측정 기준:</strong> <span id="time">--</span></p>
+      <p><strong>검색일시:</strong> <span id="time">--</span></p>
     </div>
   </header>
 
@@ -70,13 +77,27 @@
 
   <footer>
     <p>© 2025년 08월 7일 minhoolee</p>
-    <!-- 관리자 로그인 버튼 다시 추가 -->
     <button id="adminBtn" style="font-size: small; opacity: 0.6; margin-left: 1rem; cursor: pointer; background: none; border: none; color: var(--light-text-color); padding: 5px;">관리자 로그인</button>
   </footer>
 
-  <!-- gps.js를 먼저 불러와 stations 변수를 준비시킵니다. -->
+  <!-- 바로가기 안내 팝업 HTML -->
+  <div id="pwa-popup" class="pwa-popup-overlay">
+    <div class="pwa-popup-content">
+      <button id="pwa-close-btn" class="pwa-popup-close-btn">&times;</button>
+      <h3>홈 화면에 추가하기</h3>
+      <p>이 웹사이트를 앱처럼 사용하려면 홈 화면에 추가하세요!</p>
+      <div class="pwa-instructions">
+        <strong>Android (Chrome):</strong><br>
+        오른쪽 상단 메뉴(⋮) > '홈 화면에 추가' 선택
+      </div>
+      <div class="pwa-instructions">
+        <strong>iOS (Safari):</strong><br>
+        하단 공유 버튼(↑) > '홈 화면에 추가' 선택
+      </div>
+    </div>
+  </div>
+
   <script src="gps.js"></script>
-  <!-- 그 다음 app.js가 stations 변수를 사용합니다. -->
   <script src="app.js"></script>
 </body>
 </html>
