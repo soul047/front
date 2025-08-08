@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>후다닥 미세먼지 피하기</title>
+  
+  <!-- 공유하기 메타 태그 -->
+  <meta property="og:title" content="후다닥 미세먼지 피하기">
+  <meta property="og:description" content="내 주변 가장 가까운 곳의 미세먼지 정보를 확인하세요!">
+  <meta property="og:image" content="https://placehold.co/600x315/1E88E5/FFFFFF?text=후다닥!%0A미세먼지%0A피하기">
+  
   <link rel="stylesheet" href="styles.css">
   
   <!-- 고해상도 아이콘 및 PWA 설정 -->
@@ -22,7 +28,12 @@
 </head>
 <body>
   <header>
-    <h1>후다닥 미세먼지 피하기</h1>
+    <div class="header-content">
+      <h1>후다닥 미세먼지 피하기</h1>
+      <button id="shareBtn" class="share-btn" title="공유하기">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      </button>
+    </div>
     <div class="version-info">ver.1</div>
     <div class="info-row">
       <p><strong>접속지역:</strong> <span id="region">--</span></p>
@@ -76,11 +87,10 @@
   </section>
 
   <footer>
-    <p>© 2025년 08월 07일 minhoolee</p>
+    <p>© 2025년 08월 7일 minhoolee</p>
     <button id="adminBtn" style="font-size: small; opacity: 0.6; margin-left: 1rem; cursor: pointer; background: none; border: none; color: var(--light-text-color); padding: 5px;">관리자 로그인</button>
   </footer>
 
-  <!-- 바로가기 안내 팝업 HTML -->
   <div id="pwa-popup" class="pwa-popup-overlay">
     <div class="pwa-popup-content">
       <button id="pwa-close-btn" class="pwa-popup-close-btn">&times;</button>
@@ -100,6 +110,9 @@
       </div>
     </div>
   </div>
+  
+  <!-- URL 복사 완료 메시지 -->
+  <div id="toast-message" class="toast"></div>
 
   <script src="gps.js"></script>
   <script src="app.js"></script>

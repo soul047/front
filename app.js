@@ -198,6 +198,28 @@
     };
   }
 
+   // --- 공유 버튼 로직 추가 ---
+  const shareBtn = document.getElementById('shareBtn');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const url = window.location.href;
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      // 복사 완료 메시지 표시
+      const toast = document.getElementById('toast-message');
+      toast.textContent = 'URL이 복사되었어요!';
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    };
+  }
+
   navigator.geolocation.getCurrentPosition(
     p => updateAll(p.coords.latitude, p.coords.longitude),
     () => {
