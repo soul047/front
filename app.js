@@ -66,6 +66,31 @@
     stationEl.textContent = `측정소: ${station}`;
   }
 
+   // --- 방문자 수 집계 로직 (시작) ---
+  function updateVisitorCount() {
+    const KEY = 'pm25_stats';
+    // JSON.parse가 실패할 경우를 대비해 try-catch 구문 추가
+    let stats;
+    try {
+      stats = JSON.parse(localStorage.getItem(KEY) || '{"total":0,"today":0,"last":""}');
+    } catch (e) {
+      stats = {"total":0,"today":0,"last":""};
+    }
+    
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (stats.last !== today) {
+      stats.today = 0;
+      stats.last = today;
+    }
+    stats.today++;
+    stats.total++;
+
+    localStorage.setItem(KEY, JSON.stringify(stats));
+  }
+  // --- 방문자 수 집계 로직 (끝) ---
+
+
   async function fetchAirData(station) {
     try {
       const url = AIRKOREA_API.replace('{station}', encodeURIComponent(station));
