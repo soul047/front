@@ -1,7 +1,4 @@
 (() => {
-  // stations 배열은 gps.js 파일로 분리되었습니다.
-  // 이 파일은 gps.js에 정의된 전역 stations 변수를 사용합니다.
-
   const CAT = [
     { name: '좋음', max: 28, color: '#1E88E5' },
     { name: '보통', max: 80, color: '#43A047' },
@@ -30,8 +27,6 @@
   function findNearestStation(userLat, userLon) {
     let closestStation = null;
     let minDistance = Infinity;
-
-    // gps.js에 정의된 전역 stations 배열을 사용합니다.
     stations.forEach(station => {
       const distance = calculateDistance(userLat, userLon, station.lat, station.lon);
       if (distance < minDistance) {
@@ -51,13 +46,10 @@
     const statusTextEl = document.getElementById(`statusText${pmType}`);
     const valueTextEl = document.getElementById(`valueText${pmType}`);
     const stationEl = document.getElementById(`station${pmType}`);
-
     if (!wheelEl || !statusTextEl || !valueTextEl || !stationEl) return;
-
     const status = getStatus(value);
     const ratio = Math.min(value / 150, 1);
     const deg = 360 * ratio;
-
     wheelEl.style.setProperty('--gauge-color', status.color);
     wheelEl.style.setProperty('--angle', `${deg}deg`);
     statusTextEl.textContent = status.name;
@@ -65,31 +57,6 @@
     valueTextEl.textContent = `${value} µg/m³`;
     stationEl.textContent = `측정소: ${station}`;
   }
-
-   // --- 방문자 수 집계 로직 (시작) ---
-  function updateVisitorCount() {
-    const KEY = 'pm25_stats';
-    // JSON.parse가 실패할 경우를 대비해 try-catch 구문 추가
-    let stats;
-    try {
-      stats = JSON.parse(localStorage.getItem(KEY) || '{"total":0,"today":0,"last":""}');
-    } catch (e) {
-      stats = {"total":0,"today":0,"last":""};
-    }
-    
-    const today = new Date().toISOString().slice(0, 10);
-
-    if (stats.last !== today) {
-      stats.today = 0;
-      stats.last = today;
-    }
-    stats.today++;
-    stats.total++;
-
-    localStorage.setItem(KEY, JSON.stringify(stats));
-  }
-  // --- 방문자 수 집계 로직 (끝) ---
-
 
   async function fetchAirData(station) {
     try {
@@ -114,16 +81,12 @@
 
   async function updateAll(lat, lon) {
     errorEl.style.display = 'none';
-
     const stationName = findNearestStation(lat, lon);
     const airData = await fetchAirData(stationName);
-    
     drawGauge('PM10', airData.pm10, airData.station);
     drawGauge('PM25', airData.pm25, airData.station);
-
     updateRegionText(lat, lon);
     updateDateTime();
-    
     if (gaugesEl) {
       gaugesEl.classList.add('blink');
       setTimeout(() => gaugesEl.classList.remove('blink'), 500);
@@ -185,20 +148,18 @@
     }
   };
 
-   // --- 관리자 로그인 버튼 핸들러 다시 추가 ---
   const adminBtn = document.getElementById('adminBtn');
   if (adminBtn) {
     adminBtn.onclick = () => {
       const pw = prompt('비밀번호를 입력하세요.');
       if (pw === 'leesoul0407!') {
         window.location.href = 'admin.html';
-      } else if (pw) { // 사용자가 무언가 입력했지만 틀렸을 경우
+      } else if (pw) {
         alert('비밀번호가 일치하지 않습니다.');
       }
     };
   }
-
-   // --- 공유 버튼 로직 추가 ---
+  
   const shareBtn = document.getElementById('shareBtn');
   if (shareBtn) {
     shareBtn.onclick = () => {
@@ -210,7 +171,6 @@
       document.execCommand('copy');
       document.body.removeChild(textarea);
 
-      // 복사 완료 메시지 표시
       const toast = document.getElementById('toast-message');
       toast.textContent = 'URL이 복사되었어요!';
       toast.classList.add('show');
@@ -245,31 +205,63 @@
       regionEl.textContent = '주소 조회 실패';
     }
   }
-  
-  // --- 바로가기 팝업 로직 (추가) ---
-  function handlePwaPopup() {
-    const popup = document.getElementById('pwa-popup');
-    const closeBtn = document.getElementById('pwa-close-btn');
-    const PWA_PROMPT_SHOWN_KEY = 'pwaPromptShown';
 
-    // 이미 팝업을 본 적이 있으면 함수 종료
-    if (localStorage.getItem(PWA_PROMPT_SHOWN_KEY)) {
-      return;
+  // --- PWA 설치 팝업 로직 ---
+  let deferredPrompt;
+  const installPopup = document.getElementById('install-popup');
+  const installBtn = document.getElementById('install-btn');
+  const installCloseBtn = document.getElementById('install-close-btn');
+  const iosInstallPopup = document.getElementById('ios-install-popup');
+  const iosCloseBtn = document.getElementById('ios-close-btn');
+  const PWA_PROMPT_SHOWN_KEY = 'pwaPromptShown';
+
+  const isIos = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    if (!localStorage.getItem(PWA_PROMPT_SHOWN_KEY)) {
+      installPopup.style.display = 'flex';
     }
+  });
 
-    if (popup && closeBtn) {
-      popup.style.display = 'flex'; // 팝업 보이기
-      
-      closeBtn.onclick = () => {
-        popup.style.display = 'none';
-        // 팝업을 닫았다는 사실을 localStorage에 기록
+  if (installBtn) {
+    installBtn.onclick = async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User accepted the A2HS prompt');
+        }
+        deferredPrompt = null;
+        installPopup.style.display = 'none';
         localStorage.setItem(PWA_PROMPT_SHOWN_KEY, 'true');
-      };
+      }
+    };
+  }
+  
+  if (installCloseBtn) {
+    installCloseBtn.onclick = () => {
+      installPopup.style.display = 'none';
+      localStorage.setItem(PWA_PROMPT_SHOWN_KEY, 'true');
+    };
+  }
+
+  function showIosInstallPopup() {
+    if (isIos() && !localStorage.getItem(PWA_PROMPT_SHOWN_KEY)) {
+      iosInstallPopup.style.display = 'flex';
     }
   }
 
-  // 페이지 로드가 완료되면 팝업 로직 실행
-  window.addEventListener('load', handlePwaPopup);
+  if (iosCloseBtn) {
+    iosCloseBtn.onclick = () => {
+      iosInstallPopup.style.display = 'none';
+      localStorage.setItem(PWA_PROMPT_SHOWN_KEY, 'true');
+    };
+  }
+
+  window.addEventListener('load', showIosInstallPopup);
   
   updateDateTime();
   setInterval(updateDateTime, 60000);
