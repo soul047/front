@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>후다닥 미세먼지 피하기</title>
   
-  <!-- 공유하기 메타 태그 -->
   <meta property="og:title" content="후다닥 미세먼지 피하기">
   <meta property="og:description" content="내 주변 가장 가까운 곳의 미세먼지 정보를 확인하세요!">
   <meta property="og:image" content="https://placehold.co/600x315/1E88E5/FFFFFF?text=후다닥!%0A미세먼지%0A피하기">
@@ -87,31 +86,35 @@
   </section>
 
   <footer>
-    <p>© 2025년 08월 07일 minhoolee</p>
+    <p>© 2025년 08월 7일 minhoolee</p>
     <button id="adminBtn" style="font-size: small; opacity: 0.6; margin-left: 1rem; cursor: pointer; background: none; border: none; color: var(--light-text-color); padding: 5px;">관리자 로그인</button>
   </footer>
 
-  <div id="pwa-popup" class="pwa-popup-overlay">
+  <!-- PC/안드로이드용 설치 팝업 -->
+  <div id="install-popup" class="pwa-popup-overlay">
     <div class="pwa-popup-content">
-      <button id="pwa-close-btn" class="pwa-popup-close-btn">&times;</button>
+      <button id="install-close-btn" class="pwa-popup-close-btn">&times;</button>
+      <h3>앱으로 설치하기</h3>
+      <p>이 웹사이트를 앱처럼 설치하여<br>바탕화면에서 바로 사용하세요!</p>
+      <button id="install-btn" class="install-btn">앱 설치하기</button>
+    </div>
+  </div>
+
+  <!-- iOS용 안내 팝업 -->
+  <div id="ios-install-popup" class="pwa-popup-overlay">
+    <div class="pwa-popup-content">
+      <button id="ios-close-btn" class="pwa-popup-close-btn">&times;</button>
       <h3>홈 화면에 추가하기</h3>
-      <p>이 웹사이트를 앱처럼 사용하려면 홈 화면에 추가하세요!</p>
-      <div class="pwa-instructions">
-        <strong>PC (Chrome):</strong><br>
-        오른쪽 상단 메뉴(⋮) > '저장,공유,전송' > '페이지를 앱으로 설치'
+      <p>아래 순서대로 홈 화면에 추가하여<br>앱처럼 사용해 보세요!</p>
+      <div class="ios-instructions">
+        1. 하단의 공유 버튼( <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> )을 누르세요.
       </div>
-      <div class="pwa-instructions">
-        <strong>Android (Chrome):</strong><br>
-        오른쪽 상단 메뉴(⋮) > '홈 화면에 추가' 선택
-      </div>
-      <div class="pwa-instructions">
-        <strong>iOS (Safari):</strong><br>
-        하단 공유 버튼(↑) > '홈 화면에 추가' 선택
+      <div class="ios-instructions">
+        2. '홈 화면에 추가'를 선택하세요.
       </div>
     </div>
   </div>
   
-  <!-- URL 복사 완료 메시지 -->
   <div id="toast-message" class="toast"></div>
 
   <script src="gps.js"></script>
